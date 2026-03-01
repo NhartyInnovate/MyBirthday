@@ -228,7 +228,7 @@ def get_page_context():
         {"label": "Days Smashed", "value": calc_days_alive(1999, 2, 28)},  # change DOB if needed
         {"label": "Months Squashed", "value": calc_months_alive(1999, 2, 28)},
         {"label": "Next Birthday", "value": next_birthday(2027, 2, 28)},
-        {"label": "Wishes", "value": 20},
+        {"label": "Wishes", "value": 67},
     ]
 
     gallery_images = [
