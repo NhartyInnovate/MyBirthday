@@ -1,7 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime, date
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder="static",
+            template_folder="templates",
+            static_url_path="/static"
+            )
 
 # ============================
 # 1. WISHES DATA (EDIT THIS)
