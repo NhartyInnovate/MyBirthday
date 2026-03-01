@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>MyBirthday</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    >
+
+    <!-- Google Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <!-- Confetti JS (canvas-confetti CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+<!-- HERO / COUNTDOWN -->
+<section class="hero d-flex align-items-center reveal-on-scroll">
+    <div class="hero-overlay container">
+        <div class="row align-items-center gy-4">
+            <div class="col-md-7">
+                <p class="text-uppercase small text-accent mb-1">Birthday Microsite</p>
+                <h1 class="display-4 fw-bold mb-3">Nathaniel @ 28</h1>
+                <p class="lead mb-4">
+                    Counting Up, Giving thanks, and Collecting love in one place.
+                </p>
+
+                <div class="countdown card px-3 py-3">
+                    <h5 class="mb-2">Countdown to 28th February</h5>
+                    <div id="countdown-timer" data-target="{{ target_iso }}" class="d-flex gap-3 flex-wrap">
+                        <div class="time-box">
+                            <span class="time-value" id="days">00</span>
+                            <span class="time-label">Days</span>
+                        </div>
+                        <div class="time-box">
+                            <span class="time-value" id="hours">00</span>
+                            <span class="time-label">Hours</span>
+                        </div>
+                        <div class="time-box">
+                            <span class="time-value" id="minutes">00</span>
+                            <span class="time-label">Minutes</span>
+                        </div>
+                        <div class="time-box">
+                            <span class="time-value" id="seconds">00</span>
+                            <span class="time-label">Seconds</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="#wishes-section" class="btn btn-accent mt-4">
+                    See Birthday Wishes
+                </a>
+            </div>
+            <div class="col-md-5 text-center">
+                <div class="hero-photo-wrapper">
+                    <img src="{{ url_for('static', filename='img/photo1.jpg') }}"
+                         alt="Nathaniel"
+                         class="hero-photo img-fluid rounded-4 shadow">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- LIFE IN NUMBERS -->
+<section class="py-5 bg-light reveal-on-scroll">
+    <div class="container">
+        <h2 class="section-title mb-4">My Life in Numbers</h2>
+        <div class="row g-4">
+            {% for stat in life_stats %}
+                <div class="col-6 col-md-3">
+                    <div class="stat-card text-center p-3 rounded-4 shadow-sm h-100">
+                        <div class="stat-value">{{ stat.value }}</div>
+                        <div class="stat-label small">{{ stat.label }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- GALLERY -->
+<section class="py-5 reveal-on-scroll">
+    <div class="container">
+        <h2 class="section-title mb-4">Gallery</h2>
+        <div class="row g-4">
+            {% for image in gallery_images %}
+                <div class="col-6 col-md-3">
+                    <div class="gallery-card rounded-4 overflow-hidden shadow-sm h-100">
+                        <img src="{{ image.src }}" class="w-100 gallery-img" alt="Gallery image">
+                        <div class="p-2 gallery-caption small">
+                            {{ image.caption }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- WISHES + FORM (FORM OPTIONAL) -->
+<section id="wishes-section" class="py-5 bg-soft reveal-on-scroll">
+    <div class="container">
+        <h2 class="section-title mb-4">Birthday Wishes Wall</h2>
+        <div class="row g-4">
+            <!-- Form (you can ignore it if you don't need live wishes) -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Leave a Note</h5>
+                        <form action="{{ url_for('add_wish') }}" method="post" id="wish-form">
+                            <div class="mb-3">
+                                <label class="form-label">Name (optional)</label>
+                                <input type="text" name="name" class="form-control" placeholder="Your name">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Relationship (optional)</label>
+                                <select name="relation" class="form-select">
+                                    <option value="">Select...</option>
+                                    <option>Friend</option>
+                                    <option>Family</option>
+                                    <option>Colleague</option>
+                                    <option>Client</option>
+                                    <option>Church</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Message</label>
+                                <textarea name="message" class="form-control" rows="4"
+                                          placeholder="Type your birthday wish here..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-accent w-100">
+                                Send Wish 🎉
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wishes Board -->
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">Featured Wishes</h5>
+                            <small class="text-muted" id="wishes-count">
+                                {{ wishes|length }} wishes
+                            </small>
+                        </div>
+                        <div id="wishes-list" class="wishes-list flex-grow-1">
+                            {% for wish in wishes|reverse %}
+                                <div class="wish-card p-3 mb-2 rounded-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <strong>{{ wish.name }}</strong>
+                                        <small class="text-muted">{{ wish.timestamp }}</small>
+                                    </div>
+                                    {% if wish.relation %}
+                                        <span class="badge bg-light text-dark mb-1">
+                                            {{ wish.relation }}
+                                        </span>
+                                    {% endif %}
+                                    <p class="mb-0 wish-message">
+                                        {{ wish.message }}
+                                    </p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted mt-2">
+                            Curated from messages sent to me on my birthday. 🧡
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="py-3 text-center">
+    <small class="text-muted">
+        © 2026 Nathaniel · Built with Python, Flask & gratitude.
+    </small>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- MAIN APP JS -->
+<script>
+    // ---------- CONFETTI HELPERS ----------
+    function tinyConfetti() {
+        if (typeof confetti === "undefined") {
+            return;
+        }
+        confetti({
+            particleCount: 80,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+    }
+
+    function bigConfetti() {
+        if (typeof confetti === "undefined") {
+            return;
+        }
+        confetti({
+            particleCount: 200,
+            spread: 90,
+            origin: { y: 0.6 }
+        });
+    }
+
+    // ---------- BIRTHDAY COUNTDOWN + MODE ----------
+    let birthdayMode = false;
+
+    function startBirthdayMode(heroTitle, countdownCard) {
+        if (heroTitle) {
+            heroTitle.textContent = "It’s My Birthday 🎉";
+            heroTitle.classList.add("birthday-mode-title");
+        }
+        if (countdownCard) {
+            countdownCard.classList.add("birthday-mode-ring");
+        }
+
+        bigConfetti();
+        let bursts = 0;
+        const maxBursts = 4;
+        const intervalId = setInterval(() => {
+            tinyConfetti();
+            bursts += 1;
+            if (bursts >= maxBursts) {
+                clearInterval(intervalId);
+            }
+        }, 4000);
+    }
+
+    function startCountdown() {
+        const el = document.getElementById("countdown-timer");
+        if (!el) return;
+
+        const targetStr = el.getAttribute("data-target");
+        const targetDate = new Date(targetStr);
+
+        const heroTitle = document.querySelector(".hero h1");
+        const countdownCard = document.querySelector(".countdown");
+
+        function updateCountdown() {
+            const now = new Date();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                document.getElementById("days").textContent = "00";
+                document.getElementById("hours").textContent = "00";
+                document.getElementById("minutes").textContent = "00";
+                document.getElementById("seconds").textContent = "00";
+
+                if (!birthdayMode) {
+                    birthdayMode = true;
+                    startBirthdayMode(heroTitle, countdownCard);
+                }
+                return;
+            }
+
+            const seconds = Math.floor(diff / 1000);
+            const days = Math.floor(seconds / (3600 * 24));
+            const hours = Math.floor((seconds % (3600 * 24)) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+
+            document.getElementById("days").textContent = String(days).padStart(2, "0");
+            document.getElementById("hours").textContent = String(hours).padStart(2, "0");
+            document.getElementById("minutes").textContent = String(minutes).padStart(2, "0");
+            document.getElementById("seconds").textContent = String(secs).padStart(2, "0");
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    }
+
+    // ---------- SCROLL FADE-IN ----------
+    function setupScrollReveal() {
+        const elements = document.querySelectorAll(".reveal-on-scroll");
+        const observer = new IntersectionObserver(
+            entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("visible");
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.2 }
+        );
+
+        elements.forEach(el => observer.observe(el));
+    }
+
+    const shouldConfetti = {{ "true" if confetti else "false" }};
+
+    document.addEventListener("DOMContentLoaded", () => {
+        startCountdown();
+        setupScrollReveal();
+
+        if (shouldConfetti) {
+            setTimeout(bigConfetti, 500);
+        }
+    });
+</script>
+
+<!-- Particles.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+<div id="particles-js"></div>
+
+<script>
+particlesJS("particles-js", {
+  "particles": {
+    "number": { "value": 60 },
+    "color": { "value": "#ffffff" },
+    "shape": { "type": "circle" },
+    "opacity": { "value": 0.2 },
+    "size": { "value": 3 },
+    "line_linked": {
+      "enable": true,
+      "distance": 150,
+      "color": "#ffffff",
+      "opacity": 0.1,
+      "width": 1
+    },
+    "move": {
+      "enable": true,
+      "speed": 1
+    }
+  },
+  "interactivity": {
+    "events": {
+      "onhover": {
+        "enable": true,
+        "mode": "repulse"
+      }
+    }
+  }
+});
+</script>
+
+<script>
+function shootingStar() {
+    const star = document.createElement("div");
+    star.classList.add("shooting-star");
+    document.body.appendChild(star);
+
+    setTimeout(() => {
+        star.remove();
+    }, 2000);
+}
+
+setInterval(shootingStar, 8000);
+</script>
+</body>
+</html>
